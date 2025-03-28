@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creative Writing Assistant - Emotional Feedback</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="my-4 text-center">
+            <h1>Creative Writing Assistant</h1>
+            <h3>Emotional Tone Analysis</h3>
+        </header>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">Your Text</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <textarea class="form-control" id="textInput" rows="15" placeholder="Paste your text here..."></textarea>
+                        </div>
+                        <button id="analyzeBtn" class="btn btn-primary">Analyze Emotional Tone</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div id="results" class="d-none">
+                    <div class="card mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h4 class="mb-0">Overall Analysis</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5>Sentiment</h5>
+                                    <p>Overall: <span id="overallSentiment" class="font-weight-bold"></span></p>
+                                    <div id="sentimentChart" style="height: 150px;"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5>Dominant Emotion</h5>
+                                    <p>Type: <span id="dominantEmotion" class="font-weight-bold"></span></p>
+                                    <div id="emotionChart" style="height: 150px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h4 class="mb-0">Emotional Analysis</h4>
+                        </div>
+                        <div class="card-body">
+                            <ul class="nav nav-tabs" id="emotionVisualizationTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link active" id="arc-tab" data-toggle="tab" href="#arc" role="tab" aria-controls="arc" aria-selected="true">Emotional Arc</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link" id="radar-tab" data-toggle="tab" href="#radar" role="tab" aria-controls="radar" aria-selected="false">Emotion Radar</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content mt-3" id="emotionVisualizationTabContent">
+                                <div class="tab-pane fade show active text-center" id="arc" role="tabpanel" aria-labelledby="arc-tab">
+                                    <img id="emotionalArc" class="img-fluid" alt="Emotional Arc">
+                                </div>
+                                <div class="tab-pane fade text-center" id="radar" role="tabpanel" aria-labelledby="radar-tab">
+                                    <img id="emotionRadar" class="img-fluid" alt="Emotion Radar Chart">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="consistencyCard" class="card mb-4 d-none">
+                        <div class="card-header bg-warning">
+                            <h4 class="mb-0">Emotional Consistency</h4>
+                        </div>
+                        <div class="card-body" id="consistencyBody">
+                            <!-- Content will be added dynamically -->
+                        </div>
+                    </div>
+                    
+                    <div id="shiftsCard" class="card mb-4 d-none">
+                        <div class="card-header bg-secondary text-white">
+                            <h4 class="mb-0">Emotional Shifts</h4>
+                        </div>
+                        <div class="card-body" id="shiftsBody">
+                            <!-- Content will be added dynamically -->
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            <h4 class="mb-0">Improvement Suggestions</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="targetEmotion">Target emotion:</label>
+                                <select class="form-control" id="targetEmotion">
+                                    <option value="joy">Joy</option>
+                                    <option value="sadness">Sadness</option>
+                                    <option value="anger">Anger</option>
+                                    <option value="fear">Fear</option>
+                                    <option value="surprise">Surprise</option>
+                                    <option value="disgust">Disgust</option>
+                                    <option value="neutral">Neutral</option>
+                                </select>
+                            </div>
+                            <button id="suggestBtn" class="btn btn-dark">Get Suggestions</button>
+                            <div id="suggestions" class="mt-3 d-none">
+                                <!-- Content will be added dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

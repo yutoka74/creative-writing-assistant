@@ -1,0 +1,142 @@
+body {
+    background-color: #f8f9fa;
+    padding-bottom: 30px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+}
+
+.card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: none;
+}
+
+.card-header {
+    border-radius: 8px 8px 0 0 !important;
+    font-weight: 600;
+}
+
+#textInput {
+    resize: vertical;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    min-height: 300px;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.btn {
+    border-radius: 4px;
+    font-weight: 600;
+    padding: 8px 16px;
+}
+
+.emotion-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    margin: 3px;
+    border-radius: 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.emotion-joy {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.emotion-sadness {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.emotion-anger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.emotion-fear {
+    background-color: #e2d9f3;
+    color: #5a3a7e;
+}
+
+.emotion-surprise {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.emotion-disgust {
+    background-color: #d6d8d9;
+    color: #495057;
+}
+
+.emotion-neutral {
+    background-color: #e9ecef;
+    color: #495057;
+}
+
+.sentence-highlight {
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 6px;
+    background-color: #f8f9fa;
+    border-left: 4px solid #6c757d;
+}
+
+.suggestion-item {
+    background-color: #f8f9fa;
+    border-left: 4px solid #28a745;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-radius: 0 4px 4px 0;
+}
+
+.card .card-header {
+    padding: 0.5rem 1rem;
+}
+
+.original-text p, .improved-text p {
+    margin-bottom: 0;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.border-danger {
+    border-color: #dc3545 !important;
+    border-width: 3px !important;
+}
+
+.border-success {
+    border-color: #28a745 !important;
+    border-width: 3px !important;
+}
+
+#emotionalArc {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+.chart-container {
+    position: relative;
+    height: 220px;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .col-md-6 {
+        padding: 0 5px;
+    }
+}
