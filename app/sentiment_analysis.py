@@ -302,56 +302,92 @@ class EmotionalToneAnalyzer:
         }
     
     def visualize_emotional_arc(self, analysis_result):
-        """Create a visualization of the emotional arc throughout the text."""
+        """Create an enhanced visualization of the emotional arc throughout the text."""
         # Extract emotions from sentence analysis
-        emotions = [s["emotions"]["dominant_emotion"] for s in analysis_result["sentence_analysis"]]
-    
-        # Count occurrences of each emotion
-        emotion_counts = {}
-        for emotion in emotions:
-            if emotion in emotion_counts:
-                emotion_counts[emotion] += 1
-            else:
-                emotion_counts[emotion] = 1
-    
-        # Create color mapping for emotions from config
-        emotion_colors = EMOTION_COLORS
-    
-        # Create the emotional arc plot
-        plt.figure(figsize=(12, 6))
-
-        # Plot the emotional arc with y-value to show different emotions
-        unique_emotions = list(set(emotions))
-        y_positions = {emotion: i - (len(unique_emotions) - 1) / 2 for i, emotion in enumerate(unique_emotions)}
-    
-    
-        # # Plot the emotional arc
-        # for i, emotion in enumerate(emotions):
-        #     plt.scatter(i, 0, color=emotion_colors.get(emotion, 'black'), s=100)
-        for i, emotion in enumerate(emotions):
-            plt.scatter(i, y_positions[emotion], 
-                        color=emotion_colors.get(emotion, 'black'), 
-                        s=100)
+        sentences = analysis_result["sentence_analysis"]
+        positions = list(range(len(sentences)))
+        
+        # Extract all emotions and their scores for each sentence
+        sentence_emotions = []
+        for s in sentences:
+            if "emotions" in s and "scores" in s["emotions"]:
+                sentence_emotions.append({
+                    "text": s["sentence"],
+                    "scores": s["emotions"]["scores"],
+                    "dominant": s["emotions"]["dominant_emotion"]
+                })
+        
+        # Create emotion categories and color mapping
+        emotion_categories = ['joy', 'sadness', 'anger', 'fear', 'surprise', 'disgust', 'neutral']
+        emotion_colors = {
+            "joy": "green",
+            "sadness": "blue",
+            "anger": "red",
+            "fear": "purple",
+            "surprise": "orange",
+            "disgust": "brown",
+            "neutral": "gray"
+        }
+        
+        # Create figure with appropriate size
+        plt.figure(figsize=(14, 8))
+        
+        # Create a subplot for each emotion
+        for emotion in emotion_categories:
+            if emotion not in emotion_colors:
+                continue
+                
+            # Extract y-values (emotion scores) for this emotion
+            y_values = [sent["scores"].get(emotion, 0) for sent in sentence_emotions]
+            
+            # Plot this emotion as a line
+            plt.plot(
+                positions, 
+                y_values, 
+                marker='o', 
+                linestyle='-', 
+                color=emotion_colors[emotion], 
+                alpha=0.7,
+                label=emotion.capitalize()
+            )
+            
+            # Add emphasis on dominant emotions
+            for i, sent in enumerate(sentence_emotions):
+                if sent["dominant"] == emotion:
+                    plt.scatter(
+                        i, 
+                        sent["scores"].get(emotion, 0), 
+                        color=emotion_colors[emotion], 
+                        s=100, 
+                        edgecolor='black', 
+                        zorder=10
+                    )
+        
+        # Add sentence numbers on x-axis
+        plt.xticks(positions, [f"S{i+1}" for i in positions], rotation=45, fontsize=8)
         
         # Add labels and title
-        plt.xlabel('Sentence Position')
-        # plt.yticks([])  # Remove y-axis
-        plt.ylabel('Emotion')
-        plt.title('Emotional Arc Throughout the Text')
-
-        # Set y-ticks to show emotions
-        plt.yticks(list(y_positions.values()), list(y_positions.keys()))
-        plt.axhline(y=0, color='k', linestyle='--')  # Add a horizontal line at y=0
+        plt.xlabel('Sentence Number')
+        plt.ylabel('Emotion Intensity')
+        plt.title('Emotional Arc Across Sentences')
+        plt.grid(True, linestyle='--', alpha=0.7)
         
-        # Add a legend
-        legend_elements = [plt.Line2D([0], [0], marker='o', color='w', 
-                          label=emotion, markerfacecolor=color, markersize=10)
-                          for emotion, color in emotion_colors.items() 
-                          if emotion in emotion_counts]
-        plt.legend(handles=legend_elements, loc='upper right')
+        # Add legend
+        plt.legend(loc='upper right')
         
-        # Save or display the plot
-        plt.tight_layout()
+        # Add sentence text as annotations on hover (for interactive environments)
+        # In a non-interactive environment like a static image, we can add text below
+        text_box = plt.figtext(
+            0.5, 0.01, 
+            "Hover over points or refer to sentence numbers to track emotional changes", 
+            ha="center", 
+            fontsize=10, 
+            bbox={"facecolor":"white", "alpha":0.5, "pad":5}
+        )
+        
+        # Ensure everything fits nicely
+        plt.tight_layout(rect=[0, 0.05, 1, 0.95])  # Adjust the layout to make room for the text
+        
         return plt
     
     def create_emotion_radar_chart(self, analysis_result):
