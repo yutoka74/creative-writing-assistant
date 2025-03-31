@@ -7,6 +7,11 @@ from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassifica
 import re
 import spacy
 import matplotlib.pyplot as plt
+from config import EMOTION_COLORS
+import os
+
+# Set tokenizer parallelism configuration
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 # Ensure necessary NLTK data is downloaded
 try:
@@ -42,14 +47,14 @@ class EmotionalToneAnalyzer:
             model="distilbert-base-uncased-finetuned-sst-2-english",
             return_all_scores=True
         )
-        
+
         # Load emotion detection model
         self.emotion_analyzer = pipeline(
             "text-classification", 
             model="j-hartmann/emotion-english-distilroberta-base", 
             return_all_scores=True
         )
-        
+
         # Define emotion categories we're tracking
         self.emotion_categories = [
             "joy", "sadness", "anger", "fear", "surprise", "disgust", "neutral"
@@ -82,22 +87,22 @@ class EmotionalToneAnalyzer:
         text = text.lower()
         text = re.sub(r'[^\w\s]', ' ', text)
         text = re.sub(r'\s+', ' ', text).strip()
-        
+
         # Tokenize into sentences
         sentences = sent_tokenize(text)
-        
+
         # Tokenize into words and remove stopwords (for word-level analysis)
         tokenized_sentences = []
         filtered_sentences = []
-        
+
         for sentence in sentences:
             words = word_tokenize(sentence)
             tokenized_sentences.append(words)
-            
+
             # Filter stopwords
             filtered_words = [word for word in words if word.lower() not in self.stop_words]
             filtered_sentences.append(filtered_words)
-            
+
         # Syntactic parsing using spaCy
         parsed_doc = nlp(text)
         
@@ -139,11 +144,11 @@ class EmotionalToneAnalyzer:
             emotion_dict = {item['label']: item['score'] for item in emotion_scores}
             
             # Find dominant emotion
-            dominant_emotion = max(emotion_dict.items(), key=lambda x: x[1])
-            
+            dominant_emotion = max(emotion_dict.items(), key=lambda x: x[1])[0]
+
             return {
                 "scores": emotion_dict,
-                "dominant_emotion": dominant_emotion[0]
+                "dominant_emotion": dominant_emotion
             }
         except Exception as e:
             print(f"Error analyzing emotions: {e}")
@@ -226,17 +231,17 @@ class EmotionalToneAnalyzer:
         """Analyze the entire document for emotional tone."""
         # Preprocess the text
         preprocessed = self.preprocess_text(text)
-        
+
         # Split into paragraphs
         paragraphs = text.split('\n\n')
         paragraphs = [p for p in paragraphs if p.strip()]
-        
+
         # Analyze at different levels
         document_sentiment = self.analyze_sentiment(text)
         document_emotions = self.analyze_emotions(text)
         sentence_analysis = self.analyze_sentence_level(preprocessed["sentences"])
         paragraph_analysis = self.analyze_paragraph_level(paragraphs)
-        
+
         # Track emotional shifts and consistency
         emotional_shifts = self._detect_emotional_shifts(sentence_analysis)
         consistency_check = self._check_emotional_consistency(paragraph_analysis)
@@ -253,14 +258,14 @@ class EmotionalToneAnalyzer:
     def _detect_emotional_shifts(self, sentence_analysis):
         """Detect significant shifts in emotional tone between sentences."""
         shifts = []
-        
+
         if len(sentence_analysis) < 2:
             return shifts
-            
+
         for i in range(1, len(sentence_analysis)):
             prev_dominant = sentence_analysis[i-1]["emotions"]["dominant_emotion"]
             curr_dominant = sentence_analysis[i]["emotions"]["dominant_emotion"]
-            
+
             if prev_dominant != curr_dominant:
                 shifts.append({
                     "position": i,
@@ -269,17 +274,17 @@ class EmotionalToneAnalyzer:
                     "from_emotion": prev_dominant,
                     "to_emotion": curr_dominant
                 })
-                
+    
         return shifts
     
     def _check_emotional_consistency(self, paragraph_analysis):
         """Check for consistency in emotional tone across paragraphs."""
         if not paragraph_analysis:
             return {"is_consistent": True, "inconsistencies": []}
-            
+    
         dominant_emotions = [p["emotions"]["dominant_emotion"] for p in paragraph_analysis]
         main_emotion = max(set(dominant_emotions), key=dominant_emotions.count)
-        
+
         inconsistencies = []
         for i, paragraph in enumerate(paragraph_analysis):
             if paragraph["emotions"]["dominant_emotion"] != main_emotion:
@@ -300,8 +305,7 @@ class EmotionalToneAnalyzer:
         """Create a visualization of the emotional arc throughout the text."""
         # Extract emotions from sentence analysis
         emotions = [s["emotions"]["dominant_emotion"] for s in analysis_result["sentence_analysis"]]
-        positions = list(range(len(emotions)))
-        
+    
         # Count occurrences of each emotion
         emotion_counts = {}
         for emotion in emotions:
@@ -309,29 +313,35 @@ class EmotionalToneAnalyzer:
                 emotion_counts[emotion] += 1
             else:
                 emotion_counts[emotion] = 1
-        
-        # Create color mapping for emotions
-        emotion_colors = {
-            "joy": "green",
-            "sadness": "blue",
-            "anger": "red",
-            "fear": "purple",
-            "surprise": "orange",
-            "disgust": "brown",
-            "neutral": "gray"
-        }
-        
+    
+        # Create color mapping for emotions from config
+        emotion_colors = EMOTION_COLORS
+    
         # Create the emotional arc plot
         plt.figure(figsize=(12, 6))
-        
-        # Plot the emotional arc
+
+        # Plot the emotional arc with y-value to show different emotions
+        unique_emotions = list(set(emotions))
+        y_positions = {emotion: i - (len(unique_emotions) - 1) / 2 for i, emotion in enumerate(unique_emotions)}
+    
+    
+        # # Plot the emotional arc
+        # for i, emotion in enumerate(emotions):
+        #     plt.scatter(i, 0, color=emotion_colors.get(emotion, 'black'), s=100)
         for i, emotion in enumerate(emotions):
-            plt.scatter(i, 0, color=emotion_colors.get(emotion, 'black'), s=100)
+            plt.scatter(i, y_positions[emotion], 
+                        color=emotion_colors.get(emotion, 'black'), 
+                        s=100)
         
         # Add labels and title
         plt.xlabel('Sentence Position')
-        plt.yticks([])  # Remove y-axis
+        # plt.yticks([])  # Remove y-axis
+        plt.ylabel('Emotion')
         plt.title('Emotional Arc Throughout the Text')
+
+        # Set y-ticks to show emotions
+        plt.yticks(list(y_positions.values()), list(y_positions.keys()))
+        plt.axhline(y=0, color='k', linestyle='--')  # Add a horizontal line at y=0
         
         # Add a legend
         legend_elements = [plt.Line2D([0], [0], marker='o', color='w', 
@@ -354,7 +364,7 @@ class EmotionalToneAnalyzer:
                 "sentence": sentence["sentence"],
                 "emotions": emotion_scores
             })
-        
+
         # Calculate average emotion scores across all sentences
         all_emotions = {}
         for entry in emotions_data:
@@ -363,7 +373,7 @@ class EmotionalToneAnalyzer:
                     all_emotions[emotion].append(score)
                 else:
                     all_emotions[emotion] = [score]
-        
+
         # Calculate averages
         emotion_averages = {emotion: sum(scores)/len(scores) for emotion, scores in all_emotions.items()}
         

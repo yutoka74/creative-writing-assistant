@@ -11,30 +11,37 @@ $(document).ready(function() {
             return;
         }
         
-        // Show loading state
-        $(this).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analyzing...');
-        $(this).prop('disabled', true);
+        // Store a reference to the button
+        const $analyzeBtn = $(this);
         
-        // Send the text for analysis
+        // Change button state during analysis
+        $analyzeBtn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analyzing...');
+        $analyzeBtn.prop('disabled', true);
+        
+        // Send analysis request
         $.ajax({
             url: '/analyze',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ text: text }),
             success: function(response) {
+                // Display analysis results
                 displayResults(response);
-                // 明示的にボタンテキストをリセットして無効化を解除
-                setTimeout(function() {
-                    $('#analyzeBtn').html('Analyze Emotional Tone');
-                    $('#analyzeBtn').prop('disabled', false);
-                }, 100);
+                
+                // Reset button to original state - directly within the callback
+                $analyzeBtn.html('Analyze Emotional Tone');
+                $analyzeBtn.prop('disabled', false);
             },
             error: function(error) {
                 console.error('Error:', error);
                 alert('An error occurred during analysis. Please try again.');
-                $('#analyzeBtn').html('Analyze Emotional Tone');
-                $('#analyzeBtn').prop('disabled', false);
-            }
+                
+                // Reset button in case of error as well
+                $analyzeBtn.html('Analyze Emotional Tone');
+                $analyzeBtn.prop('disabled', false);
+            },
+            // Add a timeout setting
+            timeout: 30000  // 30 seconds
         });
     });
     
@@ -63,7 +70,7 @@ $(document).ready(function() {
             }),
             success: function(response) {
                 displaySuggestions(response);
-                // 明示的にボタンテキストをリセットして無効化を解除
+                // Reset button text and enable it again
                 setTimeout(function() {
                     $('#suggestBtn').html('Get Suggestions');
                     $('#suggestBtn').prop('disabled', false);

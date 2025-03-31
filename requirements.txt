@@ -5,7 +5,7 @@ flask==2.3.3
 nltk==3.8.1
 spacy==3.7.2
 transformers==4.37.2
-torch==2.1.2
+torch==2.2.2
 
 # Data Processing
 numpy==1.26.2
@@ -16,3 +16,9 @@ matplotlib==3.8.1
 
 # Utilities
 python-dotenv==1.0.0
+
+# OpenAI API
+openai==0.28.1
+
+# Note: After installation, also install the English model for spaCy with:
+# python -m spacy download en_core_web_sm
